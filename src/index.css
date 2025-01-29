@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ✅ Appliquer Tailwind correctement */
+body {
+  background-color: theme("colors.gray.100");
+  color: theme("colors.gray.900");
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* ✅ Mode sombre */
+.dark body {
+  background-color: theme("colors.gray.900");
+  color: theme("colors.gray.100");
+}
