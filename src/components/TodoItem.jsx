@@ -11,7 +11,7 @@ export default function TodoItem({ task, toggleTask, deleteTask }) {
 
   return (
     <motion.div
-      className={`flex flex-col p-2 border-b rounded-lg transition-all duration-300`}
+      className="flex flex-col p-2 border-b rounded-lg transition-all duration-300"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, x: -20 }}
@@ -40,6 +40,13 @@ export default function TodoItem({ task, toggleTask, deleteTask }) {
       {task.dueDate && (
         <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
           📅 {new Date(task.dueDate).toLocaleDateString("fr-FR")} | 🕒 {new Date(task.dueDate).toLocaleTimeString("fr-FR", { hour: '2-digit', minute: '2-digit' })}
+        </p>
+      )}
+
+      {/* ✅ Affichage de la localisation */}
+      {task.location && (
+        <p className="text-sm text-blue-500 dark:text-blue-300 mt-1">
+          📍 {task.location}
         </p>
       )}
 

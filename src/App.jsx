@@ -6,6 +6,7 @@ import TodoList from "./components/TodoList";
 import Stats from "./components/Stats";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import MapView from "./components/MapView"; // ✅ Importer la carte
 
 export default function App() {
   const { darkMode, setDarkMode } = useDarkMode();
@@ -16,9 +17,18 @@ export default function App() {
 
   const [filter, setFilter] = useState("all");
 
+  // ✅ Gestion du thème personnalisé
+  const [themeColor, setThemeColor] = useState(() => {
+    return localStorage.getItem("themeColor") || "#4CAF50"; // ✅ Par défaut vert
+  });
+
   useEffect(() => {
     localStorage.setItem("tasks", JSON.stringify(tasks));
   }, [tasks]);
+
+  useEffect(() => {
+    localStorage.setItem("themeColor", themeColor);
+  }, [themeColor]);
 
   // ✅ Demande l'autorisation des notifications bureau
   useEffect(() => {
@@ -67,15 +77,13 @@ export default function App() {
     return () => clearInterval(interval);
   }, [tasks]);
 
-  // ✅ Fonction pour ajouter une tâche avec date + heure
-  const addTask = (text, dueDate, priority, category) => {
+  // ✅ Fonction pour ajouter une tâche avec date + heure + catégorie + priorité + localisation
+  const addTask = (text, dueDate, priority, category, location) => {
     if (!text.trim()) return;
-    const newTasks = [...tasks, { id: Date.now(), text, completed: false, dueDate, priority, category }];
+    const newTasks = [...tasks, { id: Date.now(), text, completed: false, dueDate, priority, category, location }];
     setTasks(newTasks);
     toast.success("✅ Tâche ajoutée avec succès !");
   };
-
-
 
   // ✅ Fonction pour importer un fichier JSON de tâches
   const importTasks = (event) => {
@@ -96,11 +104,11 @@ export default function App() {
       } catch (error) {
         toast.error("❌ Erreur lors de l'importation !");
       }
-  };
-  reader.readAsText(file);
+    };
+    reader.readAsText(file);
   };
 
-
+  // ✅ Fonction pour exporter les tâches en JSON
   const exportTasks = () => {
     const jsonData = JSON.stringify(tasks, null, 2);
     const blob = new Blob([jsonData], { type: "application/json" });
@@ -119,15 +127,28 @@ export default function App() {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white flex flex-col items-center p-6 transition-all duration-300"
+      className="min-h-screen flex flex-col items-center p-6 transition-all duration-300"
+      style={{ backgroundColor: darkMode ? "#1E1E1E" : "#FFFFFF", color: themeColor }}
     >
       {/* ✅ Notifications */}
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar closeOnClick pauseOnHover />
 
+      {/* ✅ Sélecteur de thème personnalisé */}
+      <div className="flex items-center justify-center py-4">
+        <label className="mr-2 text-gray-900 dark:text-white">🎨 Couleur du thème :</label>
+        <input
+          type="color"
+          value={themeColor}
+          onChange={(e) => setThemeColor(e.target.value)}
+          className="w-10 h-10 border-none cursor-pointer"
+        />
+      </div>
+
       {/* ✅ Bouton Mode Sombre */}
       <motion.button
         onClick={() => setDarkMode(!darkMode)}
-        className="mb-4 px-4 py-2 bg-blue-500 dark:bg-yellow-500 text-white dark:text-gray-900 rounded"
+        className="mb-4 px-4 py-2 rounded"
+        style={{ backgroundColor: themeColor, color: "#FFFFFF" }}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
       >
@@ -135,20 +156,17 @@ export default function App() {
       </motion.button>
 
       <h1 className="text-3xl font-bold mb-4">📋 To-Do List</h1>
+
+      {/* ✅ Import / Export JSON */}
       <div className="flex gap-2 my-4">
-  <button
-    onClick={exportTasks}
-    className="px-4 py-2 bg-green-500 text-white rounded"
-  >
-    📥 Exporter
-  </button>
-
-  <label className="px-4 py-2 bg-blue-500 text-white rounded cursor-pointer">
-    📂 Importer
-    <input type="file" accept="application/json" onChange={importTasks} className="hidden" />
-  </label>
-</div>
-
+        <button onClick={exportTasks} className="px-4 py-2 bg-green-500 text-white rounded">
+          📥 Exporter
+        </button>
+        <label className="px-4 py-2 bg-blue-500 text-white rounded cursor-pointer">
+          📂 Importer
+          <input type="file" accept="application/json" onChange={importTasks} className="hidden" />
+        </label>
+      </div>
 
       {/* ✅ Formulaire d'ajout */}
       <TodoForm addTask={addTask} />
@@ -156,6 +174,19 @@ export default function App() {
       <Stats tasks={tasks} />
 
       <TodoList tasks={tasks} toggleTask={(id) => setTasks(tasks.map((task) => (task.id === id ? { ...task, completed: !task.completed } : task)))} deleteTask={(id) => setTasks(tasks.filter((task) => task.id !== id))} />
+
+      {/* ✅ Carte des tâches avec localisation */}
+      <motion.div className="min-h-screen flex flex-col items-center p-6">
+
+      {/* ✅ Formulaire + Stats + Liste des Tâches */}
+      <TodoForm addTask={addTask} />
+      <Stats tasks={tasks} />
+      <TodoList tasks={tasks} toggleTask={toggleTask} deleteTask={deleteTask} />
+
+      {/* ✅ Ajouter la carte */}
+      <MapView tasks={tasks} />
+      </motion.div>
+
     </motion.div>
   );
 }

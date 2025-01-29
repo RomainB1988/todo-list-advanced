@@ -6,7 +6,8 @@ export default function TodoForm({ addTask }) {
   const [dueDate, setDueDate] = useState("");
   const [dueTime, setDueTime] = useState("");
   const [priority, setPriority] = useState("medium");
-  const [category, setCategory] = useState("other"); // ✅ Ajout du champ catégorie
+  const [category, setCategory] = useState("other");
+  const [location, setLocation] = useState(""); // ✅ Ajout du champ localisation
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -17,12 +18,13 @@ export default function TodoForm({ addTask }) {
       fullDueDate = `${dueDate}T${dueTime}`;
     }
 
-    addTask(task, fullDueDate, priority, category);
+    addTask(task, fullDueDate, priority, category, location);
     setTask("");
     setDueDate("");
     setDueTime("");
     setPriority("medium");
-    setCategory("other"); // ✅ Réinitialisation après ajout
+    setCategory("other");
+    setLocation(""); // ✅ Réinitialisation après ajout
   };
 
   return (
@@ -66,7 +68,6 @@ export default function TodoForm({ addTask }) {
         <option value="low">🟢 Basse Priorité</option>
       </motion.select>
 
-      {/* ✅ Sélecteur de catégorie */}
       <motion.select
         value={category}
         onChange={(e) => setCategory(e.target.value)}
@@ -78,6 +79,15 @@ export default function TodoForm({ addTask }) {
         <option value="shopping">🛒 Courses</option>
         <option value="other">🎯 Autres</option>
       </motion.select>
+
+      {/* ✅ Champ de localisation */}
+      <motion.input
+        type="text"
+        value={location}
+        onChange={(e) => setLocation(e.target.value)}
+        className="border border-gray-300 dark:border-gray-600 rounded px-4 py-2 w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+        placeholder="Ajouter un lieu (ex: Paris, supermarché...)"
+      />
 
       <motion.button
         type="submit"
